@@ -8,7 +8,7 @@ CREATE TABLE transactions (
   id SERIAL PRIMARY KEY,
   value DECIMAL,
   account_id INT REFERENCES accounts(id),
-  group_type TEXT,
+  group TEXT,
   account2_id INT,
   date TIMESTAMP
 );

@@ -14,12 +14,12 @@ func NewTransactionRepository(db *sql.DB) *TransactionRepository {
 }
 
 func (repo *TransactionRepository) Create(transaction *models.Transaction) error {
-  _, err := repo.db.Exec("INSERT INTO transactions (value, account_id, group_type, account2_id, date) VALUES ($1, $2, $3, $4, $5)", transaction.Value, transaction.AccountID, transaction.Group, transaction.Account2ID, transaction.Date)
+  _, err := repo.db.Exec("INSERT INTO transactions (value, account_id, group, account2_id, date) VALUES ($1, $2, $3, $4, $5)", transaction.Value, transaction.AccountID, transaction.Group, transaction.Account2ID, transaction.Date)
   return err
 }
 
 func (repo *TransactionRepository) GetAllByAccountID(accountID int) ([]models.Transaction, error) {
-  rows, err := repo.db.Query("SELECT id, value, account_id, group_type, account2_id, date FROM transactions WHERE account_id = $1", accountID)
+  rows, err := repo.db.Query("SELECT id, value, account_id, group, account2_id, date FROM transactions WHERE account_id = $1", accountID)
   if err != nil {
     return nil, err
   }

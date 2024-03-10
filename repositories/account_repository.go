@@ -2,6 +2,7 @@ package repositories
 
 import (
   "database/sql"
+  "errors"
   "models"
 )
 
@@ -34,4 +35,30 @@ func (repo *AccountRepository) GetAll() ([]models.Account, error) {
     accounts = append(accounts, account)
   }
   return accounts, nil
+}
+
+func (repo *AccountRepository) Exists(accountID int) (bool, error) {
+  var count int
+  err := repo.db.QueryRow("SELECT COUNT(*) FROM accounts WHERE id = $1", accountID).Scan(&count)
+  if err != nil {
+    return false, err
+  }
+  return count > 0, nil
+}
+
+func (repo *AccountRepository) GetBalance(accountID int) (float64, error) {
+  exists, err := repo.Exists(accountID)
+  if err != nil {
+    return 0, err
+  }
+  if !exists {
+    return 0, errors.New("account not found")
+  }
+
+  var balance float64
+  err = repo.db.QueryRow("SELECT balance FROM accounts WHERE id = $1", accountID).Scan(&balance)
+  if err != nil {
+    return 0, err
+  }
+  return balance, nil
 }
