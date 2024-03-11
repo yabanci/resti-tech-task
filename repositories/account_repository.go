@@ -3,6 +3,7 @@ package repositories
 import (
   "database/sql"
   "errors"
+  "fmt"
   "models"
 )
 
