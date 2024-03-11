@@ -17,18 +17,34 @@ func NewTransactionController(transactionRepo *repositories.TransactionRepositor
 }
 
 func (controller *TransactionController) CreateTransaction(c *gin.Context) {
-  var transaction models.Transaction
-  if err := c.ShouldBindJSON(&transaction); err != nil {
-    c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-    return
-  }
+	var transaction models.Transaction
+	if err := c.ShouldBindJSON(&transaction); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-  if err := controller.transactionRepo.Create(&transaction); err != nil {
-    c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating transaction"})
-    return
-  }
+	switch transaction.Group {
+	case "income":
+		if err := controller.transactionRepo.createIncomeTransaction(&transaction); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	case "outcome":
+		if err := controller.transactionRepo.createOutcomeTransaction(&transaction); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	case "transfer":
+		if err := controller.transactionRepo.createTransferTransaction(&transaction); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid transaction group"})
+		return
+	}
 
-  c.Status(http.StatusCreated)
+	c.Status(http.StatusCreated)
 }
 
 func (controller *TransactionController) GetTransactions(c *gin.Context) {
